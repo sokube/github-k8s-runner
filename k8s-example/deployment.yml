@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: github-runner
+  labels:
+    app: github-runner
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: github-runner
+  template:
+    metadata:
+      labels:
+        app: github-runner
+    spec:
+      containers:
+      - name: github-runner-sidecar
+        image: docker:19.03.12-dind
+        # This is needed to include the provided CA certificates in the trusted ones
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "update-ca-certificates"]
+        volumeMounts:
+          - name: docker-certs
+            mountPath: /certs
+          - name: docker-storage
+            mountPath: /var/lib/docker
+          - name: github-workdir
+            mountPath: /home/github/_work
+          # Mount additional CA certificates from the configmap volume
+          - name: private-registry-certificate-volume
+            mountPath: /usr/local/share/ca-certificates
+        securityContext:
+          privileged: true
+
+      - name: github-runner
+        image: fabricevergnenegre/github-runner-k8s:2.223.0
+        env:
+          - name: RUNNER_NAME_PREFIX
+            value: "myorg-pool-"
+          - name: "RUNNER_LABELS"
+            value: "docker-dind,k3d"
+          - name: GITHUB_OWNER
+            value: myorg
+          - name: GITHUB_PAT # stored separately in a Kubernetes secret
+            valueFrom:
+              secretKeyRef:
+                name: my-pat
+                key: pat
+          - name: DOCKER_TLS_CERTDIR
+            value: /certs
+          - name: DOCKER_HOST
+            value: tcp://localhost:2376
+          - name: DOCKER_TLS_VERIFY
+            value: "1"
+          - name: DOCKER_CERT_PATH
+            value: /certs/client        
+        volumeMounts:
+          - name: docker-certs
+            mountPath: /certs
+          - name: github-workdir
+            mountPath: /home/github/_work
+      volumes:
+      - name: docker-storage
+        emptyDir: {}
+      - name: docker-certs
+        emptyDir: {}
+      - name: github-workdir
+        emptyDir: {}
+      # Additional CA certificates from a configmap volume
+      - name: private-registry-certificate-volume
+        configMap:
+          name: private-registry-certificate
+        
