@@ -52,7 +52,7 @@ jobs:
 
       - name: Log into GH Container Registry
         # run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        run: echo "${{ secrets.GITHUBCR }}" | docker login ghcr.io --username $GITHUB_ACTOR --password-stdin
+        run: echo "${{ secrets.CR_PAT }}" | docker login ghcr.io --username $GITHUB_ACTOR --password-stdin
 
       - name: Push image
         run: |
