@@ -50,12 +50,13 @@ jobs:
       - name: Build image
         run: docker build . --file Dockerfile --tag $IMAGE_NAME
 
-      - name: Log into registry
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Log into GH Container Registry
+        # run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        run: echo "${{ secrets.GITHUBCR }}" | docker login ghcr.io --username $GITHUB_ACTOR --password-stdin
 
       - name: Push image
         run: |
-          IMAGE_ID=sokubedocker/$IMAGE_NAME
+          IMAGE_ID=ghcr.io/sokube/github-k8s-runners/$IMAGE_NAME
 
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
