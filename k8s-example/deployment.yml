@@ -36,7 +36,7 @@ spec:
           privileged: true
 
       - name: github-runner
-        image: fabricevergnenegre/github-runner-k8s:2.223.0
+        image: ghcr.io/sokube/github-k8s-runner:latest:2.223.0
         env:
           - name: RUNNER_NAME_PREFIX
             value: "myorg-pool-"
