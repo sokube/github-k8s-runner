@@ -26,7 +26,7 @@ This work is largely based on the work done by Sander Knape and David Karlsen:
 
 - If you want to include your registry self-signed CA certificate, use a config map
   ``` shell
-  kubectl create configmap private-registry- --from-file=ca.crt
+  kubectl create configmap private-registry-certificate --from-file=ca.crt
   ```
 - Adapt the [deployment.yml](./k8s-example/deployment.yml) Deployment resource to reflect your organization name in the GITHUB_OWNER environment variable, and deploy:
   ``` shell

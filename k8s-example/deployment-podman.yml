@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: github-runner
+  labels:
+    app: github-runner
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: github-runner
+  template:
+    metadata:
+      labels:
+        app: github-runner
+    spec:
+      containers:
+      - name: github-runner
+        image: ghcr.io/sokube/github-k8s-runner:podman-2.273.5
+        env:
+          - name: RUNNER_NAME_PREFIX
+            value: "myorg-pool-podman-"
+          - name: "RUNNER_LABELS"
+            value: "podman,k3d"
+          - name: GITHUB_OWNER
+            value: myorg
+          - name: GITHUB_PAT # stored separately in a Kubernetes secret
+            valueFrom:
+              secretKeyRef:
+                name: my-pat
+                key: pat
+          # - name: DOCKER_TLS_CERTDIR
+          #   value: /certs
+          # - name: DOCKER_HOST
+          #   value: tcp://localhost:2376
+          # - name: DOCKER_TLS_VERIFY
+          #   value: "1"
+          # - name: DOCKER_CERT_PATH
+          #   value: /certs/client        
+        volumeMounts:
+          # - name: docker-certs
+          #   mountPath: /certs
+          - name: github-workdir
+            mountPath: /home/github/_work
+      volumes:
+      - name: docker-storage
+        emptyDir: {}
+      - name: docker-certs
+        emptyDir: {}
+      - name: github-workdir
+        emptyDir: {}
+      # Additional CA certificates from a configmap volume
+      - name: private-registry-certificate-volume
+        configMap:
+          name: private-registry-certificate
+        
