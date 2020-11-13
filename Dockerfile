@@ -1,42 +1,38 @@
 FROM debian:buster-slim
 
-ARG GITHUB_RUNNER_VERSION="2.273.5"
+RUN apt-get update \
+    && apt-get install -y \
+        curl \
+        sudo \
+        git \
+        jq \
+        iputils-ping \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd -m github \
+    && usermod -aG sudo github \
+    && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers \\
+    && curl https://download.docker.com/linux/static/stable/x86_64/docker-19.03.9.tgz --output docker-19.03.9.tgz \
+    && tar xvfz docker-19.03.9.tgz \
+    && cp docker/* /usr/bin/
 
 ENV GITHUB_PAT ""
 ENV GITHUB_OWNER ""
+ENV GITHUB_REPOSITORY ""
 ENV RUNNER_WORKDIR "_work"
 ENV RUNNER_LABELS ""
-ENV RUNNER_NAME_PREFIX "myorg-"
+ENV DOCKER_HOST="tcp://docker-in-docker.dind:2376"
 
-RUN apt-get update \
-    && apt-get install -y \
-        apt-transport-https \
-        ca-certificates \
-        gnupg-agent \
-        software-properties-common \
-        curl \
-        git \
-        jq
-
-# Install Docker client
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - \
-    && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian buster stable" \
-    && apt-get update \
-    && apt-get install docker-ce-cli \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && useradd -m github
-
-WORKDIR /home/github
-
-# Install github runner packages
-RUN curl -Ls https://github.com/actions/runner/releases/download/v${GITHUB_RUNNER_VERSION}/actions-runner-linux-x64-${GITHUB_RUNNER_VERSION}.tar.gz | tar xz \
-    && ./bin/installdependencies.sh \
-    && chown -R github:github /home/github
 
 USER github
+WORKDIR /home/github
 
-# Entrypoint
+RUN fullVersion=$(curl --silent "https://api.github.com/repos/actions/runner/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') \
+    && GITHUB_RUNNER_VERSION=${fullVersion#?} \
+    && curl -Ls https://github.com/actions/runner/releases/download/v${GITHUB_RUNNER_VERSION}/actions-runner-linux-x64-${GITHUB_RUNNER_VERSION}.tar.gz | tar xz \
+    && sudo ./bin/installdependencies.sh
+
 COPY --chown=github:github entrypoint.sh ./entrypoint.sh
-RUN chmod u+x ./entrypoint.sh
+RUN sudo chmod u+x ./entrypoint.sh
+
 ENTRYPOINT ["/home/github/entrypoint.sh"]
