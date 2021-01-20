@@ -42,5 +42,4 @@ USER github
 
 # Entrypoint
 COPY --chown=github:github entrypoint.sh ./entrypoint.sh
-RUN chmod u+x ./entrypoint.sh
 ENTRYPOINT ["/home/github/entrypoint.sh"]
