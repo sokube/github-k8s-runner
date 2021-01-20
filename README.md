@@ -1,11 +1,9 @@
 # github-k8s-runner
 How to run your own GitHub build farm on a Kubernetes cluster, article, code
 
-# References
+## References
 
-This work is largely based on the work done by Sander Knape and David Karlsen:
-- https://sanderknape.com/2020/03/self-hosted-github-actions-runner-kubernetes/
-- https://github.com/evryfs/github-actions-runner-operator/
+This work is largely based on the work done by [Sander Knape](https://sanderknape.com/2020/03/self-hosted-github-actions-runner-kubernetes/) and [David Karlsen](https://github.com/evryfs/github-actions-runner-operator/):
 
 **Modifications:**
 - Added a sidecar docker-dind with TLS TCP communication between the client and the daemon containers
@@ -14,7 +12,7 @@ This work is largely based on the work done by Sander Knape and David Karlsen:
 - Removed the sudo package, sudo group and passwordless sudoers from the container user
 - Added a way to use self signed certificates for a local registry as a config map
 
-# Howto
+## Howto
 
 - As an **organization owner**, create a GitHub Personal Access Token with the *repo* and *admin:org* scope permissions:
 ![image-20200825102405975](img/image-20200825102405975.png)

@@ -8,21 +8,25 @@ ENV RUNNER_WORKDIR "_work"
 ENV RUNNER_LABELS ""
 ENV RUNNER_NAME_PREFIX "myorg-"
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 RUN apt-get update \
-    && apt-get install -y \
-        apt-transport-https \
-        ca-certificates \
-        gnupg-agent \
-        software-properties-common \
-        curl \
-        git \
-        jq
+    && apt-get install --no-install-recommends -y \
+        apt-transport-https=1.8.2.2 \
+        ca-certificates=20200601~deb10u1 \
+        gnupg=2.2.12-1+deb10u1 \
+        gnupg-agent=2.2.12-1+deb10u1 \
+        software-properties-common=0.96.20.2-2 \
+        curl=7.64.0-4+deb10u1 \
+        git=1:2.20.1-2+deb10u3 \
+        jq=1.5+dfsg-2+b1 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Docker client
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - \
     && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian buster stable" \
     && apt-get update \
-    && apt-get install docker-ce-cli \
+    && apt-get install docker-ce-cli=5:20.10.2~3-0~debian-buster --no-install-recommends -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -m github
