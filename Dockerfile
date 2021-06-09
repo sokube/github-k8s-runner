@@ -1,6 +1,6 @@
 FROM debian:buster-slim
 
-ARG GITHUB_RUNNER_VERSION="2.276.0"
+ARG GITHUB_RUNNER_VERSION="2.278.0"
 
 ENV GITHUB_PAT ""
 ENV GITHUB_OWNER ""
@@ -13,11 +13,11 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         apt-transport-https=1.8.2.2 \
-        ca-certificates=20200601~deb10u1 \
+        ca-certificates=20200601~deb10u2 \
         gnupg=2.2.12-1+deb10u1 \
         gnupg-agent=2.2.12-1+deb10u1 \
         software-properties-common=0.96.20.2-2 \
-        curl=7.64.0-4+deb10u1 \
+        curl=7.64.0-4+deb10u2 \
         git=1:2.20.1-2+deb10u3 \
         jq=1.5+dfsg-2+b1 \
     && rm -rf /var/lib/apt/lists/*
